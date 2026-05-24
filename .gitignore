@@ -1,0 +1,13 @@
+# .NET
+api/bin/
+api/obj/
+api/*.db
+appsettings.Development.json
+
+# Node
+client/node_modules/
+client/dist/
+
+# General
+.env
+.DS_Store
