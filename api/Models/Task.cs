@@ -2,7 +2,7 @@ namespace Api.Models;
 
 public class TodoTask
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
     public string Title { get; set; } = string.Empty;
     public string? Description { get; set; }
     public string Priority { get; set; } = "Medium";
@@ -13,10 +13,9 @@ public class TodoTask
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    // Foreign keys
-    public int ProjectId { get; set; }
+    public Guid ProjectId { get; set; }
     public Project Project { get; set; } = null!;
 
-    public int CreatedById { get; set; }
+    public Guid CreatedById { get; set; }
     public User CreatedBy { get; set; } = null!;
 }

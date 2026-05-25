@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260524032448_InitialCreate")]
+    [Migration("20260525022111_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -22,12 +22,12 @@ namespace Api.Migrations
 
             modelBuilder.Entity("Api.Models.Comment", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
-                    b.Property<int>("AuthorId")
-                        .HasColumnType("INTEGER");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Body")
                         .IsRequired()
@@ -36,11 +36,11 @@ namespace Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("INTEGER");
+                    b.Property<Guid?>("ProjectId")
+                        .HasColumnType("TEXT");
 
-                    b.Property<int?>("TaskId")
-                        .HasColumnType("INTEGER");
+                    b.Property<Guid?>("TaskId")
+                        .HasColumnType("TEXT");
 
                     b.HasKey("Id");
 
@@ -55,9 +55,9 @@ namespace Api.Migrations
 
             modelBuilder.Entity("Api.Models.Project", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("CoverImageUrl")
                         .HasColumnType("TEXT");
@@ -71,8 +71,8 @@ namespace Api.Migrations
                     b.Property<string>("Emoji")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("OwnerId")
-                        .HasColumnType("INTEGER");
+                    b.Property<Guid>("OwnerId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -90,9 +90,9 @@ namespace Api.Migrations
 
             modelBuilder.Entity("Api.Models.TodoTask", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("TEXT");
@@ -100,8 +100,8 @@ namespace Api.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("CreatedById")
-                        .HasColumnType("INTEGER");
+                    b.Property<Guid>("CreatedById")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Description")
                         .HasColumnType("TEXT");
@@ -113,8 +113,8 @@ namespace Api.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<int>("ProjectId")
-                        .HasColumnType("INTEGER");
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -141,9 +141,9 @@ namespace Api.Migrations
 
             modelBuilder.Entity("Api.Models.User", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
+                        .HasColumnType("TEXT");
 
                     b.Property<string>("AvatarUrl")
                         .HasColumnType("TEXT");
