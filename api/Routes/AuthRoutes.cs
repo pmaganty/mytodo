@@ -26,7 +26,7 @@ public static class AuthRoutes
 
             var token = tokenService.GenerateToken(user);
             return Results.Ok(new { token, user = new { user.Id, user.Name, user.Email } });
-        });
+        }).RequireRateLimiting("auth");
 
         app.MapPost("/auth/login", async (LoginRequest request, AppDbContext db, TokenService tokenService) =>
         {
@@ -37,7 +37,7 @@ public static class AuthRoutes
 
             var token = tokenService.GenerateToken(user);
             return Results.Ok(new { token, user = new { user.Id, user.Name, user.Email } });
-        });
+        }).RequireRateLimiting("auth");
     }
 }
 
