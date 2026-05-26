@@ -37,3 +37,17 @@ public record ProjectDetailResponse(
     int HighPriorityCount,
     int UrgentPriorityCount
 );
+
+public record TaskResponse(
+    Guid Id,
+    string Title,
+    string? Description,
+    string Priority,
+    string Status,
+    string? Type,
+    DateTime? DueDate,
+    DateTime? CompletedAt,
+    Guid ProjectId,
+    DateTime CreatedAt,
+    DateTime UpdatedAt
+);

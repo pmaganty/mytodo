@@ -30,8 +30,12 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=mytodo.db"));
 
 builder.Services.AddScoped<TokenService>();
+
 builder.Services.AddScoped<ProjectRepository>();
 builder.Services.AddScoped<ProjectService>();
+
+builder.Services.AddScoped<TaskRepository>();
+builder.Services.AddScoped<TaskService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -77,5 +81,6 @@ app.UseAuthorization();
 
 app.MapAuthRoutes();
 app.MapProjectRoutes();
+app.MapTaskRoutes();
 
 app.Run();
