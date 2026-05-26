@@ -42,18 +42,32 @@ public static class ProjectRoutes
             return Results.NoContent();
         }).RequireAuthorization();
 
-        app.MapGet("/api/projects/{projectId}/tasks", async (Guid projectId, HttpContext context, TaskService taskService) =>
+        app.MapGet("/api/projects/{projectId}/tasks", async (Guid projectId, HttpContext context, ProjectService projectService) =>
         {
             var userId = AuthHelper.GetUserId(context);
-            var tasks = await taskService.GetTasksByProjectId(projectId, userId);
+            var tasks = await projectService.GetAllTasksForProject(projectId, userId);
             return Results.Ok(tasks);
         }).RequireAuthorization();
 
-        app.MapPost("/api/projects/{projectId}/tasks", async (Guid projectId, HttpContext context, CreateTaskRequest request, TaskService taskService) =>
+        app.MapPost("/api/projects/{projectId}/tasks", async (Guid projectId, HttpContext context, CreateTaskRequest request, ProjectService projectService) =>
         {
             var userId = AuthHelper.GetUserId(context);
-            var task = await taskService.CreateTask(projectId, userId, request);
+            var task = await projectService.AddTaskToProject(projectId, userId, request);
             return Results.Created($"/api/tasks/{task.Id}", task);
+        }).RequireAuthorization();
+
+        app.MapGet("/api/projects/{projectId}/comments", async (Guid projectId, HttpContext context, ProjectService projectService) =>
+        {
+            var userId = AuthHelper.GetUserId(context);
+            var comments = await projectService.GetAllCommentsForProject(projectId, userId);
+            return Results.Ok(comments);
+        }).RequireAuthorization();
+
+        app.MapPost("/api/projects/{projectId}/comments", async (Guid projectId, HttpContext context, CreateCommentRequest request, ProjectService projectService) =>
+        {
+            var userId = AuthHelper.GetUserId(context);
+            var comment = await projectService.AddCommentToProject(projectId, userId, request);
+            return Results.Created($"/api/comments/{comment.Id}", comment);
         }).RequireAuthorization();
     }
 }

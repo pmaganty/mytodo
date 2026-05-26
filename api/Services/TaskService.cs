@@ -8,11 +8,13 @@ public class TaskService
 {
     private readonly TaskRepository _taskRepository;
     private readonly ProjectRepository _projectRepository;
+    private readonly CommentRepository _commentRepository;
 
-    public TaskService(TaskRepository taskRepository, ProjectRepository projectRepository)
+    public TaskService(TaskRepository taskRepository, ProjectRepository projectRepository, CommentRepository commentRepository)
     {
         _taskRepository = taskRepository;
         _projectRepository = projectRepository;
+        _commentRepository = commentRepository;
     }
 
     public async Task<IEnumerable<TaskResponse>> GetTasksByProjectId(Guid projectId, Guid userId)
@@ -120,6 +122,46 @@ public class TaskService
             task.ProjectId,
             task.CreatedAt,
             task.UpdatedAt
+        );
+    }
+
+    public async Task<IEnumerable<CommentResponse>> GetAllCommentsForTask(Guid taskId, Guid userId)
+    {
+        var task = await _taskRepository.GetTaskById(taskId, userId);
+        if (task == null) throw new KeyNotFoundException("Task not found");
+        return await _commentRepository.GetCommentsByTaskId(taskId);
+    }
+
+    public async Task<CommentResponse> AddCommentToTask(Guid taskId, Guid userId, CreateCommentRequest request)
+    {
+        var task = await _taskRepository.GetTaskById(taskId, userId);
+        if (task == null) throw new KeyNotFoundException("Task not found");
+
+        if (string.IsNullOrWhiteSpace(request.Body))
+            throw new ArgumentException("Body is required");
+
+        var comment = new Comment
+        {
+            Body = request.Body.Trim(),
+            AuthorId = userId,
+            TaskId = taskId
+        };
+
+        var created = await _commentRepository.CreateComment(comment);
+        return await GetCommentResponse(created.Id);
+    }
+
+    private async Task<CommentResponse> GetCommentResponse(Guid commentId)
+    {
+        var comment = await _commentRepository.GetCommentById(commentId);
+        return new CommentResponse(
+            comment!.Id,
+            comment.Body,
+            comment.AuthorId,
+            comment.Author?.Name ?? "",
+            comment.TaskId,
+            comment.ProjectId,
+            comment.CreatedAt
         );
     }
 }

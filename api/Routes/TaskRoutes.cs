@@ -27,5 +27,19 @@ public static class TaskRoutes
             await taskService.DeleteTask(taskId, userId);
             return Results.NoContent();
         }).RequireAuthorization();
+
+        app.MapGet("/api/tasks/{taskId}/comments", async (Guid taskId, HttpContext context, TaskService taskService) =>
+        {
+            var userId = AuthHelper.GetUserId(context);
+            var comments = await taskService.GetAllCommentsForTask(taskId, userId);
+            return Results.Ok(comments);
+        }).RequireAuthorization();
+
+        app.MapPost("/api/tasks/{taskId}/comments", async (Guid taskId, HttpContext context, CreateCommentRequest request, TaskService taskService) =>
+        {
+            var userId = AuthHelper.GetUserId(context);
+            var comment = await taskService.AddCommentToTask(taskId, userId, request);
+            return Results.Created($"/api/comments/{comment.Id}", comment);
+        }).RequireAuthorization();
     }
 }

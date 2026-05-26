@@ -51,3 +51,13 @@ public record TaskResponse(
     DateTime CreatedAt,
     DateTime UpdatedAt
 );
+
+public record CommentResponse(
+    Guid Id,
+    string Body,
+    Guid AuthorId,
+    string AuthorName,
+    Guid? TaskId,
+    Guid? ProjectId,
+    DateTime CreatedAt
+);

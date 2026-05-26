@@ -32,3 +32,11 @@ public record UpdateTaskRequest(
     DateTime? DueDate,
     DateTime? CompletedAt
 );
+
+public record CreateCommentRequest(
+    string Body
+);
+
+public record UpdateCommentRequest(
+    string Body
+);
