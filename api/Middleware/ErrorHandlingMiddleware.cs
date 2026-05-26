@@ -30,14 +30,18 @@ public class ErrorHandlingMiddleware
     private static Task HandleExceptionAsync(HttpContext context, Exception ex)
     {
         context.Response.ContentType = "application/json";
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-        var response = new
+        var (statusCode, error) = ex switch
         {
-            error = "An unexpected error occurred",
-            message = ex.Message
+            ArgumentException => (400, ex.Message),
+            UnauthorizedAccessException => (401, "Unauthorized"),
+            KeyNotFoundException => (404, ex.Message),
+            _ => (500, "An unexpected error occurred")
         };
 
+        context.Response.StatusCode = statusCode;
+
+        var response = new { error };
         return context.Response.WriteAsync(JsonSerializer.Serialize(response));
     }
 }

@@ -8,6 +8,7 @@ using Api.Routes;
 using Api.Middleware;
 using Microsoft.AspNetCore.RateLimiting;
 using System.Threading.RateLimiting;
+using Api.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +30,8 @@ builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=mytodo.db"));
 
 builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<ProjectRepository>();
+builder.Services.AddScoped<ProjectService>();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -73,5 +76,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapAuthRoutes();
+app.MapProjectRoutes();
 
 app.Run();
