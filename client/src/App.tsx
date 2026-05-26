@@ -1,9 +1,31 @@
+import { Routes, Route } from "react-router-dom";
+import LoginPage from "./pages/LoginPage";
+import DashboardPage from "./pages/DashboardPage";
+import ProjectPage from "./pages/ProjectPage";
+import TaskPage from "./pages/TaskPage";
+import ProtectedRoute from "./components/ProtectedRoute";
+
 function App() {
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-500">mytodo is alive!</h1>
-    </div>
-  )
+    <Routes>
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/" element={
+        <ProtectedRoute>
+          <DashboardPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/projects/:id" element={
+        <ProtectedRoute>
+          <ProjectPage />
+        </ProtectedRoute>
+      } />
+      <Route path="/tasks/:id" element={
+        <ProtectedRoute>
+          <TaskPage />
+        </ProtectedRoute>
+      } />
+    </Routes>
+  );
 }
 
-export default App
+export default App;
