@@ -2,6 +2,7 @@ interface InputProps {
   label?: string;
   value: string;
   onChange: (value: string) => void;
+  onBlur?: () => void;
   placeholder?: string;
   type?: "text" | "email" | "password" | "date" | "textarea";
   error?: string;
@@ -12,6 +13,7 @@ export default function Input({
   label,
   value,
   onChange,
+  onBlur,
   placeholder,
   type = "text",
   error,
@@ -36,6 +38,7 @@ export default function Input({
         <textarea
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
           placeholder={placeholder}
           disabled={disabled}
           rows={4}
@@ -46,6 +49,7 @@ export default function Input({
           type={type}
           value={value}
           onChange={(e) => onChange(e.target.value)}
+          onBlur={onBlur}
           placeholder={placeholder}
           disabled={disabled}
           className={baseStyles}
