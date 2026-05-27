@@ -14,11 +14,39 @@ public class TaskRepository
         _db = db;
     }
 
-    public async Task<IEnumerable<TaskResponse>> GetTasksByProjectId(Guid projectId)
+    public async Task<IEnumerable<TaskResponse>> GetTasksByProjectId(Guid projectId, TaskFilterRequest? filter = null)
     {
-        return await _db.Tasks
-            .Where(t => t.ProjectId == projectId)
-            .OrderByDescending(t => t.CreatedAt)
+        var query = _db.Tasks.Where(t => t.ProjectId == projectId);
+
+        // Filtering
+        if (!string.IsNullOrWhiteSpace(filter?.Status))
+            query = query.Where(t => t.Status == filter.Status);
+
+        if (!string.IsNullOrWhiteSpace(filter?.Priority))
+            query = query.Where(t => t.Priority == filter.Priority);
+
+        if (filter?.CreatedById != null)
+            query = query.Where(t => t.CreatedById == filter.CreatedById);
+
+        // Sorting
+        query = filter?.SortBy?.ToLower() switch
+        {
+            "duedate" => filter.SortOrder?.ToLower() == "asc"
+                ? query.OrderBy(t => t.DueDate)
+                : query.OrderByDescending(t => t.DueDate),
+            "priority" => filter.SortOrder?.ToLower() == "asc"
+                ? query.OrderBy(t => t.Priority)
+                : query.OrderByDescending(t => t.Priority),
+            "status" => filter.SortOrder?.ToLower() == "asc"
+                ? query.OrderBy(t => t.Status)
+                : query.OrderByDescending(t => t.Status),
+            "createdby" => filter.SortOrder?.ToLower() == "asc"
+                ? query.OrderBy(t => t.CreatedBy.Name)
+                : query.OrderByDescending(t => t.CreatedBy.Name),
+            _ => query.OrderByDescending(t => t.CreatedAt)
+        };
+
+        return await query
             .Select(t => new TaskResponse(
                 t.Id,
                 t.Title,

@@ -41,4 +41,14 @@ public record UpdateCommentRequest(
     string Body
 );
 
-public record AddMemberRequest(Guid UserId);
+public record AddMemberRequest(
+    Guid UserId
+);
+
+public record TaskFilterRequest(
+    string? Status,
+    string? Priority,
+    Guid? CreatedById,
+    string? SortBy,
+    string? SortOrder
+);

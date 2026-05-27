@@ -17,11 +17,11 @@ public class TaskService
         _commentRepository = commentRepository;
     }
 
-    public async Task<IEnumerable<TaskResponse>> GetTasksByProjectId(Guid projectId, Guid userId)
+    public async Task<IEnumerable<TaskResponse>> GetTasksByProjectId(Guid projectId, Guid userId, TaskFilterRequest? filter = null)
     {
         var project = await _projectRepository.GetProjectById(projectId, userId);
         if (project == null) throw new KeyNotFoundException("Project not found");
-        return await _taskRepository.GetTasksByProjectId(projectId);
+        return await _taskRepository.GetTasksByProjectId(projectId, filter);
     }
 
     public async Task<TaskResponse> CreateTask(Guid projectId, Guid userId, CreateTaskRequest request)

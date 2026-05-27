@@ -128,11 +128,11 @@ public class ProjectService
         );
     }
 
-    public async Task<IEnumerable<TaskResponse>> GetAllTasksForProject(Guid projectId, Guid userId)
+    public async Task<IEnumerable<TaskResponse>> GetAllTasksForProject(Guid projectId, Guid userId, TaskFilterRequest? filter = null)
     {
         var project = await _projectRepository.GetProjectById(projectId, userId);
         if (project == null) throw new KeyNotFoundException("Project not found");
-        return await _taskRepository.GetTasksByProjectId(projectId);
+        return await _taskRepository.GetTasksByProjectId(projectId, filter);
     }
 
     public async Task<TaskResponse> AddTaskToProject(Guid projectId, Guid userId, CreateTaskRequest request)

@@ -42,10 +42,19 @@ public static class ProjectRoutes
             return Results.NoContent();
         }).RequireAuthorization();
 
-        app.MapGet("/api/projects/{projectId}/tasks", async (Guid projectId, HttpContext context, ProjectService projectService) =>
+        app.MapGet("/api/projects/{projectId}/tasks", async (
+            Guid projectId,
+            HttpContext context,
+            ProjectService projectService,
+            string? status,
+            string? priority,
+            Guid? createdById,
+            string? sortBy,
+            string? sortOrder) =>
         {
             var userId = AuthHelper.GetUserId(context);
-            var tasks = await projectService.GetAllTasksForProject(projectId, userId);
+            var filter = new TaskFilterRequest(status, priority, createdById, sortBy, sortOrder);
+            var tasks = await projectService.GetAllTasksForProject(projectId, userId, filter);
             return Results.Ok(tasks);
         }).RequireAuthorization();
 
