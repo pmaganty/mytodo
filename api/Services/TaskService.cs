@@ -98,8 +98,12 @@ public class TaskService
 
     public async Task DeleteTask(Guid taskId, Guid userId)
     {
-        var task = await _taskRepository.GetTaskById(taskId, userId);
+        var task = await _taskRepository.GetTaskByIdForView(taskId);
         if (task == null) throw new KeyNotFoundException("Task not found");
+
+        if (task.CreatedById != userId)
+            throw new UnauthorizedAccessException("You can only delete tasks you created");
+
         await _taskRepository.DeleteTask(task);
     }
 

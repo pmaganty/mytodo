@@ -29,7 +29,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite("Data Source=mytodo.db"));
 
-builder.Services.AddScoped<TokenService>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<AuthService>();
 
 builder.Services.AddScoped<ProjectRepository>();
 builder.Services.AddScoped<ProjectService>();

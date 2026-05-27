@@ -6,7 +6,7 @@ using Api.Models;
 
 namespace Api.Services;
 
-public class TokenService
+public class TokenService : ITokenService
 {
     private readonly IConfiguration _configuration;
 

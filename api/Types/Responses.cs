@@ -73,3 +73,14 @@ public record ProjectMemberResponse(
     string Email,
     string Role
 );
+
+public record UserResponse(
+    Guid Id,
+    string Name,
+    string Email
+);
+
+public record AuthResponse(
+    string Token,
+    UserResponse User
+);

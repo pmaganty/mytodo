@@ -11,3 +11,7 @@ client/dist/
 # General
 .env
 .DS_Store
+
+# .NET Tests
+api.tests/bin/
+api.tests/obj/
