@@ -80,6 +80,11 @@ export default function TaskRow({ task, onTaskUpdated }: TaskRowProps) {
           {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "—"}
         </span>
       </td>
+      <td className="py-3 px-4">
+        <span className="text-sm text-brand-text-light">
+          {task.createdByName}
+        </span>
+      </td>
     </tr>
   );
 }

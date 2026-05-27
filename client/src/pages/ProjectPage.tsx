@@ -65,6 +65,7 @@ export default function ProjectPage() {
   const handleAddComment = async (body: string) => {
     const { data } = await api.post(`/api/projects/${id}/comments`, { body });
     setComments((prev) => [data, ...prev]);
+    return data;
   };
 
   const handleProjectDeleted = () => {

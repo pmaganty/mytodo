@@ -31,6 +31,7 @@ export default function TaskList({ tasks, onAddTask, onTaskUpdated }: TaskListPr
               <th className="text-left py-3 px-4 text-xs font-medium text-brand-text-light uppercase tracking-wider">Status</th>
               <th className="text-left py-3 px-4 text-xs font-medium text-brand-text-light uppercase tracking-wider">Priority</th>
               <th className="text-left py-3 px-4 text-xs font-medium text-brand-text-light uppercase tracking-wider">Due Date</th>
+              <th className="text-left py-3 px-4 text-xs font-medium text-brand-text-light uppercase tracking-wider">Created By</th>
             </tr>
           </thead>
           <tbody>

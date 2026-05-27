@@ -5,9 +5,11 @@ import api from "../services/api";
 import Navbar from "../components/layout/Navbar";
 import TaskDetailCard from "../components/tasks/TaskDetailCard";
 import CommentList from "../components/comments/CommentList";
+import { useAuth } from "../context/AuthContext";
 
 export default function TaskPage() {
   const { id } = useParams<{ id: string }>();
+  const { user } = useAuth();
   const navigate = useNavigate();
 
   const [task, setTask] = useState<Task | null>(null);
@@ -40,6 +42,7 @@ export default function TaskPage() {
   const handleAddComment = async (body: string) => {
     const { data } = await api.post(`/api/tasks/${id}/comments`, { body });
     setComments((prev) => [data, ...prev]);
+    return data;
   };
 
   const handleTaskDeleted = () => {
@@ -76,6 +79,7 @@ export default function TaskPage() {
           task={task}
           onTaskUpdated={handleTaskUpdated}
           onTaskDeleted={handleTaskDeleted}
+          isOwner={user?.id === task.createdById}
         />
         
         <CommentList

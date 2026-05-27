@@ -4,6 +4,8 @@ import EditProjectModal from "./EditProjectModal";
 import Button from "../ui/Button";
 import api from "../../services/api";
 import ConfirmModal from "../ui/ConfirmModal";
+import ShareProjectModal from "./ShareProjectModal";
+import { useAuth } from "../../context/AuthContext";
 
 interface ProjectDetailCardProps {
   project: Project;
@@ -12,9 +14,13 @@ interface ProjectDetailCardProps {
 }
 
 export default function ProjectDetailCard({ project, onProjectUpdated, onProjectDeleted }: ProjectDetailCardProps) {
+  const { user } = useAuth();
+  const isOwner = user?.id === project.ownerId;
+
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
 
   const completionPercentage =
     project.taskCount === 0
@@ -54,14 +60,23 @@ export default function ProjectDetailCard({ project, onProjectUpdated, onProject
             </div>
           </div>
           <div className="flex gap-2">
-         <Button variant="ghost" size="sm" onClick={() => setIsEditModalOpen(true)}>
-             Edit
-         </Button>
-         <Button variant="danger" size="sm" onClick={() => setIsDeleteModalOpen(true)}>
-             Delete
-         </Button>
-         </div>
-         </div>
+            {isOwner && (
+                <Button variant="ghost" size="sm" onClick={() => setIsEditModalOpen(true)}>
+                Edit
+                </Button>
+            )}
+            {isOwner && (
+                <Button variant="ghost" size="sm" onClick={() => setIsShareModalOpen(true)}>
+                Share
+                </Button>
+            )}
+            {isOwner && (
+                <Button variant="danger" size="sm" onClick={() => setIsDeleteModalOpen(true)}>
+                Delete
+                </Button>
+            )}
+          </div>
+          </div>
 
         {/* Stats */}
         <div className="grid grid-cols-3 gap-4 mb-6">
@@ -116,6 +131,12 @@ export default function ProjectDetailCard({ project, onProjectUpdated, onProject
         title="Delete Project"
         message="Are you sure you want to delete this project? All tasks and comments will be permanently deleted."
         isLoading={isDeleting}
+      />
+
+      <ShareProjectModal
+        isOpen={isShareModalOpen}
+        onClose={() => setIsShareModalOpen(false)}
+        projectId={project.id}
       />
     </>
   );

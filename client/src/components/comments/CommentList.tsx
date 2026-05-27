@@ -5,7 +5,7 @@ import Button from "../ui/Button";
 
 interface CommentListProps {
   comments: CommentType[];
-  onAddComment: (body: string) => Promise<void>;
+  onAddComment: (body: string) => Promise<CommentType>;
 }
 
 export default function CommentList({ comments: initialComments, onAddComment }: CommentListProps) {
@@ -17,10 +17,13 @@ export default function CommentList({ comments: initialComments, onAddComment }:
     if (!body.trim()) return;
     setIsLoading(true);
     try {
-      await onAddComment(body.trim());
-      setBody("");
+        const newComment = await onAddComment(body.trim());
+        if (newComment) {
+            setComments((prev) => [newComment, ...prev]);
+        }
+        setBody("");
     } finally {
-      setIsLoading(false);
+        setIsLoading(false);
     }
   };
 

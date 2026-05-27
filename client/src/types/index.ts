@@ -14,6 +14,7 @@ export interface Project {
   updatedAt: string;
   taskCount: number;
   completedTaskCount: number;
+  ownerId: string;
 }
 
 export interface Task {
@@ -25,7 +26,11 @@ export interface Task {
   type: string | null;
   dueDate: string | null;
   completedAt: string | null;
+  completedById: string | null;
+  completedByName: string | null;
   projectId: string;
+  createdById: string;
+  createdByName: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -38,4 +43,11 @@ export interface Comment {
   taskId: string | null;
   projectId: string | null;
   createdAt: string;
+}
+
+export interface ProjectMemberResponse {
+  userId: string;
+  name: string;
+  email: string;
+  role: string;
 }

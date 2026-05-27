@@ -97,8 +97,13 @@ public class TaskService
 
     public async Task<IEnumerable<CommentResponse>> GetAllCommentsForTask(Guid taskId, Guid userId)
     {
-        var task = await _taskRepository.GetTaskById(taskId, userId);
+        var task = await _taskRepository.GetTaskByIdForView(taskId);
         if (task == null) throw new KeyNotFoundException("Task not found");
+
+        // verify user has access to the project
+        var project = await _projectRepository.GetProjectById(task.ProjectId, userId);
+        if (project == null) throw new KeyNotFoundException("Task not found");
+
         return await _commentRepository.GetCommentsByTaskId(taskId);
     }
 

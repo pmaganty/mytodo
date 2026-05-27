@@ -35,7 +35,8 @@ public record ProjectDetailResponse(
     int LowPriorityCount,
     int MediumPriorityCount,
     int HighPriorityCount,
-    int UrgentPriorityCount
+    int UrgentPriorityCount,
+    Guid OwnerId
 );
 
 public record TaskResponse(

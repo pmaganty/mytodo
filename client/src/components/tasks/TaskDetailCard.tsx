@@ -9,6 +9,7 @@ interface TaskDetailCardProps {
   task: Task;
   onTaskUpdated: (task: Task) => void;
   onTaskDeleted: () => void;
+  isOwner: boolean;
 }
 
 const PRIORITIES = ["Low", "Medium", "High", "Urgent"];
@@ -27,7 +28,7 @@ const statusColors: Record<string, string> = {
   Done: "bg-status-done text-green-800",
 };
 
-export default function TaskDetailCard({ task, onTaskUpdated, onTaskDeleted }: TaskDetailCardProps) {
+export default function TaskDetailCard({ task, onTaskUpdated, onTaskDeleted, isOwner }: TaskDetailCardProps) {
   const [title, setTitle] = useState(task.title);
   const [description, setDescription] = useState(task.description ?? "");
   const [dueDate, setDueDate] = useState(
@@ -81,24 +82,28 @@ export default function TaskDetailCard({ task, onTaskUpdated, onTaskDeleted }: T
 
         {/* Title + Delete button */}
         <div className="flex items-start justify-between mb-6">
-          <div className="flex-1">
-            <input
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              onBlur={() => handleUpdate({ title })}
-              className="font-display text-3xl font-bold text-brand-text bg-transparent border-b-2 border-transparent hover:border-brand-border focus:border-brand-primary outline-none w-full transition-all pb-1"
-            />
-            {isSaving && (
-              <p className="text-xs text-brand-text-light mt-1">Saving...</p>
+            <div className="flex-1">
+                {isOwner ? (
+                <input
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    onBlur={() => handleUpdate({ title })}
+                    className="font-display text-3xl font-bold text-brand-text bg-transparent border-b-2 border-transparent hover:border-brand-border focus:border-brand-primary outline-none w-full transition-all pb-1"
+                />
+                ) : (
+                <h1 className="font-display text-3xl font-bold text-brand-text">
+                    {task.title}
+                </h1>
+                )}
+                {isSaving && (
+                <p className="text-xs text-brand-text-light mt-1">Saving...</p>
+                )}
+            </div>
+            {isOwner && (
+                <Button variant="danger" size="sm" onClick={() => setIsDeleteModalOpen(true)}>
+                Delete
+                </Button>
             )}
-          </div>
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => setIsDeleteModalOpen(true)}
-          >
-            Delete
-          </Button>
         </div>
 
         {/* Status + Priority */}
@@ -108,19 +113,19 @@ export default function TaskDetailCard({ task, onTaskUpdated, onTaskDeleted }: T
               Status
             </label>
             <div className="flex gap-2 flex-wrap">
-              {STATUSES.map((s) => (
-                <button
-                  key={s}
-                  onClick={() => handleStatusChange(s)}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border-2 ${
-                    task.status === s
-                      ? `${statusColors[s]} border-brand-primary`
-                      : "bg-brand-bg text-brand-text-light border-transparent hover:border-brand-border"
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
+                {STATUSES.map((s) => (
+                    <button
+                    key={s}
+                    onClick={() => isOwner && handleStatusChange(s)}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border-2 ${
+                        task.status === s
+                        ? `${statusColors[s]} border-brand-primary`
+                        : `bg-brand-bg text-brand-text-light border-transparent ${isOwner ? "hover:border-brand-border cursor-pointer" : "cursor-default"}`
+                    }`}
+                    >
+                    {s}
+                    </button>
+                ))}
             </div>
           </div>
 
@@ -129,65 +134,92 @@ export default function TaskDetailCard({ task, onTaskUpdated, onTaskDeleted }: T
               Priority
             </label>
             <div className="flex gap-2 flex-wrap">
-              {PRIORITIES.map((p) => (
-                <button
-                  key={p}
-                  onClick={() => handleUpdate({ priority: p })}
-                  className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border-2 ${
-                    task.priority === p
-                      ? `${priorityColors[p]} border-brand-primary`
-                      : "bg-brand-bg text-brand-text-light border-transparent hover:border-brand-border"
-                  }`}
-                >
-                  {p}
+                {PRIORITIES.map((p) => (
+                    <button
+                    key={p}
+                    onClick={() => isOwner && handleUpdate({ priority: p })}
+                    className={`px-3 py-1.5 rounded-full text-xs font-medium transition-all border-2 ${
+                        task.priority === p
+                        ? `${priorityColors[p]} border-brand-primary`
+                        : `bg-brand-bg text-brand-text-light border-transparent ${isOwner ? "hover:border-brand-border cursor-pointer" : "cursor-default"}`
+                    }`}
+                    >
+                    {p}
                 </button>
-              ))}
+                ))}
             </div>
           </div>
         </div>
 
         {/* Due Date */}
         <div className="mb-6">
-          <Input
+        {isOwner ? (
+            <Input
             label="Due Date"
             value={dueDate}
             onChange={setDueDate}
             onBlur={() => handleUpdate({ dueDate: dueDate || null })}
             type="date"
-          />
+            />
+        ) : (
+            <div>
+            <label className="text-xs font-medium text-brand-text-light uppercase tracking-wider block mb-2">
+                Due Date
+            </label>
+            <p className="text-sm text-brand-text">
+                {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "—"}
+            </p>
+            </div>
+        )}
         </div>
 
         {/* Description */}
         <div>
-          <label className="text-xs font-medium text-brand-text-light uppercase tracking-wider block mb-2">
+        <label className="text-xs font-medium text-brand-text-light uppercase tracking-wider block mb-2">
             Description
-          </label>
-          <textarea
+        </label>
+        {isOwner ? (
+            <textarea
             value={description}
             onChange={(e) => setDescription(e.target.value)}
             onBlur={() => handleUpdate({ description: description || null })}
             placeholder="Add a description..."
             rows={4}
             className="w-full px-4 py-2.5 rounded-xl border border-brand-border bg-brand-bg text-brand-text placeholder-brand-text-light focus:outline-none focus:ring-2 focus:ring-brand-primary text-sm resize-none transition-all"
-          />
+            />
+        ) : (
+            <p className="text-sm text-brand-text-light font-sans">
+            {task.description ?? "No description"}
+            </p>
+        )}
         </div>
 
         {/* Metadata */}
-        <div className="mt-6 pt-4 border-t border-brand-border flex gap-6">
-          <div>
-            <p className="text-xs text-brand-text-light">Created</p>
-            <p className="text-sm text-brand-text">
-              {new Date(task.createdAt).toLocaleDateString()}
-            </p>
-          </div>
-          {task.completedAt && (
+        <div className="mt-6 pt-4 border-t border-brand-border flex flex-wrap gap-6">
             <div>
-              <p className="text-xs text-brand-text-light">Completed</p>
-              <p className="text-sm text-brand-text">
-                {new Date(task.completedAt).toLocaleDateString()}
-              </p>
+                <p className="text-xs text-brand-text-light">Created by</p>
+                <p className="text-sm text-brand-text">{task.createdByName}</p>
             </div>
-          )}
+            <div>
+                <p className="text-xs text-brand-text-light">Created</p>
+                <p className="text-sm text-brand-text">
+                {new Date(task.createdAt).toLocaleDateString()}
+                </p>
+            </div>
+            {task.completedAt && (
+                <div>
+                <p className="text-xs text-brand-text-light">Completed</p>
+                <p className="text-sm text-brand-text">
+                    {new Date(task.completedAt).toLocaleDateString()}
+                </p>
+                </div>
+            )}
+            {task.completedByName && (
+                <div>
+                <p className="text-xs text-brand-text-light">Completed by</p>
+                <p className="text-sm text-brand-text">{task.completedByName}</p>
+                </div>
+            )}
         </div>
       </div>
 

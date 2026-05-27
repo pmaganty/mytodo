@@ -44,7 +44,9 @@ public class ProjectRepository
     public async Task<ProjectDetailResponse?> GetProjectByIdAndOwnerId(Guid projectId, Guid userId)
     {
         return await _db.Projects
-            .Where(p => p.Id == projectId && p.OwnerId == userId)
+            .Where(p => p.Id == projectId &&
+                (p.OwnerId == userId ||
+                _db.ProjectMembers.Any(pm => pm.ProjectId == p.Id && pm.UserId == userId)))
             .Select(p => new ProjectDetailResponse(
                 p.Id,
                 p.Title,
@@ -58,7 +60,8 @@ public class ProjectRepository
                 _db.Tasks.Count(t => t.ProjectId == p.Id && t.Priority == "Low"),
                 _db.Tasks.Count(t => t.ProjectId == p.Id && t.Priority == "Medium"),
                 _db.Tasks.Count(t => t.ProjectId == p.Id && t.Priority == "High"),
-                _db.Tasks.Count(t => t.ProjectId == p.Id && t.Priority == "Urgent")
+                _db.Tasks.Count(t => t.ProjectId == p.Id && t.Priority == "Urgent"),
+                p.OwnerId
             ))
             .FirstOrDefaultAsync();
     }
