@@ -11,6 +11,9 @@ using System.Threading.RateLimiting;
 using Api.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
+// Use Railway's dynamic port in production
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 // Restricts which frontend origins can call the API.
@@ -30,9 +33,10 @@ builder.Services.AddCors(options =>
 // ── DATABASE ──────────────────────────────────────────────────────────────────
 // Uses SQLite for MVP simplicity. Swapping to PostgreSQL for production would
 // require only changing this connection string and the EF Core provider package.
+var connectionString = Environment.GetEnvironmentVariable("DATABASE_URL") ?? "Data Source=mytodo.db";
 builder.Services.AddOpenApi();
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=mytodo.db"));
+    options.UseSqlite(connectionString));
 
 // ── DEPENDENCY INJECTION ──────────────────────────────────────────────────────
 // Registers all repositories and services with scoped lifetime —
