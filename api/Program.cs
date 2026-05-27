@@ -90,6 +90,13 @@ builder.Services.AddRateLimiter(options =>
 
 var app = builder.Build();
 
+// Auto-run migrations on startup
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+}
+
 // ── MIDDLEWARE PIPELINE ───────────────────────────────────────────────────────
 // Order matters here — error handling wraps everything, CORS must come before
 // auth, and authentication must come before authorization.
