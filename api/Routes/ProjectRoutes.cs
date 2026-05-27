@@ -9,7 +9,7 @@ public static class ProjectRoutes
     {
         app.MapGet("/api/projects", async (HttpContext context, ProjectService projectService, string? search) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             var filter = new ProjectFilterRequest(search);
             var projects = await projectService.GetProjectsForUser(userId, filter);
             return Results.Ok(projects);
@@ -17,28 +17,28 @@ public static class ProjectRoutes
 
         app.MapPost("/api/projects", async (HttpContext context, CreateProjectRequest request, ProjectService projectService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             var project = await projectService.CreateProject(userId, request);
             return Results.Created($"/api/projects/{project.Id}", project);
         }).RequireAuthorization();
 
         app.MapGet("/api/projects/{projectId}", async (Guid projectId, HttpContext context, ProjectService projectService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             var project = await projectService.GetProjectById(projectId, userId);
             return Results.Ok(project);
         }).RequireAuthorization();
 
         app.MapPatch("/api/projects/{projectId}", async (Guid projectId, HttpContext context, UpdateProjectRequest request, ProjectService projectService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             var project = await projectService.UpdateProject(projectId, userId, request);
             return Results.Ok(project);
         }).RequireAuthorization();
 
         app.MapDelete("/api/projects/{projectId}", async (Guid projectId, HttpContext context, ProjectService projectService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             await projectService.DeleteProject(projectId, userId);
             return Results.NoContent();
         }).RequireAuthorization();
@@ -48,7 +48,7 @@ public static class ProjectRoutes
             HttpContext context,
             ProjectService projectService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             var filter = projectService.ParseTaskFilter(context);
             var tasks = await projectService.GetAllTasksForProject(projectId, userId, filter);
             return Results.Ok(tasks);
@@ -56,42 +56,42 @@ public static class ProjectRoutes
 
         app.MapPost("/api/projects/{projectId}/tasks", async (Guid projectId, HttpContext context, CreateTaskRequest request, ProjectService projectService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             var task = await projectService.AddTaskToProject(projectId, userId, request);
             return Results.Created($"/api/tasks/{task.Id}", task);
         }).RequireAuthorization();
 
         app.MapGet("/api/projects/{projectId}/comments", async (Guid projectId, HttpContext context, ProjectService projectService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             var comments = await projectService.GetAllCommentsForProject(projectId, userId);
             return Results.Ok(comments);
         }).RequireAuthorization();
 
         app.MapPost("/api/projects/{projectId}/comments", async (Guid projectId, HttpContext context, CreateCommentRequest request, ProjectService projectService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             var comment = await projectService.AddCommentToProject(projectId, userId, request);
             return Results.Created($"/api/comments/{comment.Id}", comment);
         }).RequireAuthorization();
 
         app.MapGet("/api/projects/{projectId}/members", async (Guid projectId, HttpContext context, ProjectService projectService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             var members = await projectService.GetProjectMembers(projectId, userId);
             return Results.Ok(members);
         }).RequireAuthorization();
 
         app.MapPost("/api/projects/{projectId}/members", async (Guid projectId, HttpContext context, AddMemberRequest request, ProjectService projectService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             await projectService.AddProjectMember(projectId, userId, request.UserId);
             return Results.Ok();
         }).RequireAuthorization();
 
         app.MapDelete("/api/projects/{projectId}/members/{memberId}", async (Guid projectId, Guid memberId, HttpContext context, ProjectService projectService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             await projectService.RemoveProjectMember(projectId, userId, memberId);
             return Results.NoContent();
         }).RequireAuthorization();

@@ -152,4 +152,56 @@ public class ProjectServiceTests
 
         await act.Should().ThrowAsync<KeyNotFoundException>();
     }
+
+    [Fact]
+    public async Task AddCommentToProject_WithValidData_ReturnsComment()
+    {
+        var (db, projectService) = CreateProjectService();
+        var user = CreateUser(db);
+        var project = CreateProject(db, user.Id);
+
+        var result = await projectService.AddCommentToProject(project.Id, user.Id, new CreateCommentRequest("Hello!"));
+
+        result.Should().NotBeNull();
+        result.Body.Should().Be("Hello!");
+        result.AuthorId.Should().Be(user.Id);
+        result.ProjectId.Should().Be(project.Id);
+    }
+
+    [Fact]
+    public async Task AddCommentToProject_WithEmptyBody_ThrowsArgumentException()
+    {
+        var (db, projectService) = CreateProjectService();
+        var user = CreateUser(db);
+        var project = CreateProject(db, user.Id);
+
+        var act = async () => await projectService.AddCommentToProject(project.Id, user.Id, new CreateCommentRequest(""));
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("Body is required");
+    }
+
+    [Fact]
+    public async Task AddCommentToProject_WhenProjectNotFound_ThrowsKeyNotFoundException()
+    {
+        var (db, projectService) = CreateProjectService();
+        var user = CreateUser(db);
+
+        var act = async () => await projectService.AddCommentToProject(Guid.NewGuid(), user.Id, new CreateCommentRequest("Hello!"));
+
+        await act.Should().ThrowAsync<KeyNotFoundException>();
+    }
+
+    [Fact]
+    public async Task AddCommentToProject_WhenUserIsNotMember_ThrowsKeyNotFoundException()
+    {
+        var (db, projectService) = CreateProjectService();
+        var owner = CreateUser(db, "Owner", "owner@test.com");
+        var otherUser = CreateUser(db, "Other", "other@test.com");
+        var project = CreateProject(db, owner.Id);
+
+        var act = async () => await projectService.AddCommentToProject(project.Id, otherUser.Id, new CreateCommentRequest("Hello!"));
+
+        await act.Should().ThrowAsync<KeyNotFoundException>();
+    }
 }

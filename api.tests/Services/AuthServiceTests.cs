@@ -6,6 +6,7 @@ using Api.Data;
 using Api.Models;
 using Api.Services;
 using Api.Types;
+using System.Security.Claims;
 
 namespace Api.Tests.Services;
 
@@ -116,5 +117,56 @@ public class AuthServiceTests
         var act = async () => await authService.Login(new LoginRequest("nonexistent@test.com", "password123"));
 
         await act.Should().ThrowAsync<UnauthorizedAccessException>();
+    }
+
+    [Fact]
+    public void GetUserIdFromClaims_WithValidClaims_ReturnsUserId()
+    {
+        var userId = Guid.NewGuid();
+        var claims = new List<Claim>
+        {
+            new Claim("userId", userId.ToString()),
+            new Claim("email", "test@test.com")
+        };
+
+        var result = AuthService.GetUserIdFromClaims(claims);
+
+        result.Should().Be(userId);
+    }
+
+    [Fact]
+    public void GetUserIdFromClaims_WithMissingUserIdClaim_ThrowsUnauthorizedAccessException()
+    {
+        var claims = new List<Claim>
+        {
+            new Claim("email", "test@test.com")
+        };
+
+        var act = () => AuthService.GetUserIdFromClaims(claims);
+
+        act.Should().Throw<UnauthorizedAccessException>();
+    }
+
+    [Fact]
+    public void GetUserIdFromClaims_WithInvalidGuid_ThrowsUnauthorizedAccessException()
+    {
+        var claims = new List<Claim>
+        {
+            new Claim("userId", "not-a-valid-guid")
+        };
+
+        var act = () => AuthService.GetUserIdFromClaims(claims);
+
+        act.Should().Throw<UnauthorizedAccessException>();
+    }
+
+    [Fact]
+    public void GetUserIdFromClaims_WithEmptyClaims_ThrowsUnauthorizedAccessException()
+    {
+        var claims = new List<Claim>();
+
+        var act = () => AuthService.GetUserIdFromClaims(claims);
+
+        act.Should().Throw<UnauthorizedAccessException>();
     }
 }

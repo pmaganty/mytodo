@@ -10,7 +10,7 @@ public static class UserRoutes
     {
         app.MapGet("/api/users/search", async (string name, AppDbContext db, HttpContext context) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
 
             var users = await db.Users
                 .Where(u => u.Name.ToLower().Contains(name.ToLower()) && u.Id != userId)

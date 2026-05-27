@@ -9,14 +9,14 @@ public static class CommentRoutes
     {
         app.MapPatch("/api/comments/{commentId}", async (Guid commentId, HttpContext context, UpdateCommentRequest request, CommentService commentService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             var comment = await commentService.UpdateComment(commentId, userId, request);
             return Results.Ok(comment);
         }).RequireAuthorization();
 
         app.MapDelete("/api/comments/{commentId}", async (Guid commentId, HttpContext context, CommentService commentService) =>
         {
-            var userId = AuthHelper.GetUserId(context);
+            var userId = AuthService.GetUserIdFromClaims(context.User.Claims);
             await commentService.DeleteComment(commentId, userId);
             return Results.NoContent();
         }).RequireAuthorization();

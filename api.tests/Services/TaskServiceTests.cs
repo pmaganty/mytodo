@@ -168,4 +168,47 @@ public class TaskServiceTests
         await act.Should().ThrowAsync<ArgumentException>()
             .WithMessage("Title is required");
     }
+
+    [Fact]
+    public async Task AddCommentToTask_WithValidData_ReturnsComment()
+    {
+        var (db, taskService) = CreateTaskService();
+        var user = CreateUser(db);
+        var project = CreateProject(db, user.Id);
+        var task = CreateTask(db, project.Id, user.Id);
+
+        var result = await taskService.AddCommentToTask(task.Id, user.Id, new CreateCommentRequest("Task comment!"));
+
+        result.Should().NotBeNull();
+        result.Body.Should().Be("Task comment!");
+        result.TaskId.Should().Be(task.Id);
+    }
+
+    [Fact]
+    public async Task AddCommentToTask_WithEmptyBody_ThrowsArgumentException()
+    {
+        var (db, taskService) = CreateTaskService();
+        var user = CreateUser(db);
+        var project = CreateProject(db, user.Id);
+        var task = CreateTask(db, project.Id, user.Id);
+
+        var act = async () => await taskService.AddCommentToTask(task.Id, user.Id, new CreateCommentRequest(""));
+
+        await act.Should().ThrowAsync<ArgumentException>()
+            .WithMessage("Body is required");
+    }
+
+    [Fact]
+    public async Task AddCommentToTask_WhenUserIsNotProjectMember_ThrowsKeyNotFoundException()
+    {
+        var (db, taskService) = CreateTaskService();
+        var owner = CreateUser(db, "Owner", "owner@test.com");
+        var otherUser = CreateUser(db, "Other", "other@test.com");
+        var project = CreateProject(db, owner.Id);
+        var task = CreateTask(db, project.Id, owner.Id);
+
+        var act = async () => await taskService.AddCommentToTask(task.Id, otherUser.Id, new CreateCommentRequest("Hello!"));
+
+        await act.Should().ThrowAsync<KeyNotFoundException>();
+    }
 }

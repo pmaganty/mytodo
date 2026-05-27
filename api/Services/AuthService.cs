@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Api.Data;
 using Api.Models;
 using Api.Types;
+using System.Security.Claims;
 
 namespace Api.Services;
 
@@ -57,5 +58,13 @@ public class AuthService
 
         var token = _tokenService.GenerateToken(user);
         return new AuthResponse(token, new UserResponse(user.Id, user.Name, user.Email));
+    }
+
+    public static Guid GetUserIdFromClaims(IEnumerable<Claim> claims)
+    {
+        var claim = claims.FirstOrDefault(c => c.Type == "userId");
+        if (claim == null || !Guid.TryParse(claim.Value, out var userId))
+            throw new UnauthorizedAccessException("User ID not found in token");
+        return userId;
     }
 }
