@@ -6,6 +6,8 @@ using Api.Models;
 using Api.Services;
 using Api.Repositories;
 using Api.Types;
+using Moq;
+using Microsoft.Extensions.Logging;
 
 namespace Api.Tests.Services;
 
@@ -22,10 +24,12 @@ public class CommentServiceTests
     private (AppDbContext db, CommentService commentService) CreateCommentService()
     {
         var db = CreateInMemoryDb();
+        var mockProjectRepoLogger = new Mock<ILogger<ProjectRepository>>();
+        var projectRepository = new ProjectRepository(db, mockProjectRepoLogger.Object);
         var commentRepository = new CommentRepository(db);
-        var projectRepository = new ProjectRepository(db);
         var taskRepository = new TaskRepository(db);
-        var commentService = new CommentService(commentRepository, projectRepository, taskRepository);
+        var mockLogger = new Mock<ILogger<CommentService>>();
+        var commentService = new CommentService(commentRepository, projectRepository, taskRepository, mockLogger.Object);
         return (db, commentService);
     }
 

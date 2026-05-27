@@ -6,6 +6,9 @@ using Api.Models;
 
 namespace Api.Services;
 
+/// <summary>
+/// Responsible for generating JWT tokens used for authenticating API requests.
+/// </summary>
 public class TokenService : ITokenService
 {
     private readonly IConfiguration _configuration;
@@ -15,6 +18,10 @@ public class TokenService : ITokenService
         _configuration = configuration;
     }
 
+    /// <summary>
+    /// Generates a signed JWT token for the given user containing their userId and email as claims.
+    /// The token is valid for 7 days and is signed using HMAC-SHA256 with the configured secret key.
+    /// </summary>
     public string GenerateToken(User user)
     {
         var secretKey = _configuration["Jwt:SecretKey"]!;

@@ -14,6 +14,11 @@ public class TaskRepository
         _db = db;
     }
 
+    /// <summary>
+    /// Returns all tasks for a project with optional filtering by status, priority, and creator,
+    /// and optional sorting by due date, priority, status, or creator name.
+    /// Defaults to ordering by most recently created.
+    /// </summary>
     public async Task<IEnumerable<TaskResponse>> GetTasksByProjectId(Guid projectId, TaskFilterRequest? filter = null)
     {
         var query = _db.Tasks.Where(t => t.ProjectId == projectId);
@@ -67,20 +72,29 @@ public class TaskRepository
             .ToListAsync();
     }
 
-    // For viewing - any project member can access
+    /// <summary>
+    /// Fetches a task by ID with no ownership check.
+    /// Used for viewing — any project member can access any task.
+    /// </summary>
     public async Task<TodoTask?> GetTaskByIdForView(Guid taskId)
     {
         return await _db.Tasks
             .FirstOrDefaultAsync(t => t.Id == taskId);
     }
 
-    // For editing - only the creator can access
+    /// <summary>
+    /// Fetches a task by ID only if the given user is the creator.
+    /// Used for edit authorization — only the task creator can modify it.
+    /// </summary>
     public async Task<TodoTask?> GetTaskById(Guid taskId, Guid userId)
     {
         return await _db.Tasks
             .FirstOrDefaultAsync(t => t.Id == taskId && t.CreatedById == userId);
     }
 
+    /// <summary>
+    /// Persists a new task to the database and returns it.
+    /// </summary>
     public async Task<TodoTask> CreateTask(TodoTask task)
     {
         _db.Tasks.Add(task);
@@ -88,6 +102,10 @@ public class TaskRepository
         return task;
     }
 
+    /// <summary>
+    /// Persists changes to an existing task, updating the UpdatedAt timestamp,
+    /// and returns the updated entity.
+    /// </summary>
     public async Task<TodoTask> UpdateTask(TodoTask task)
     {
         task.UpdatedAt = DateTime.UtcNow;
@@ -96,12 +114,20 @@ public class TaskRepository
         return task;
     }
 
+    /// <summary>
+    /// Removes a task from the database.
+    /// </summary>
     public async Task DeleteTask(TodoTask task)
     {
         _db.Tasks.Remove(task);
         await _db.SaveChangesAsync();
     }
 
+    /// <summary>
+    /// Returns a fully populated TaskResponse for a given task ID including
+    /// creator and completer details. Used after create and update operations
+    /// to return a clean typed response.
+    /// </summary>
     public async Task<TaskResponse?> GetTaskResponseById(Guid taskId)
     {
         return await _db.Tasks

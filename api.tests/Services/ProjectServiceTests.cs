@@ -7,6 +7,7 @@ using Api.Models;
 using Api.Services;
 using Api.Repositories;
 using Api.Types;
+using Microsoft.Extensions.Logging;
 
 namespace Api.Tests.Services;
 
@@ -23,10 +24,12 @@ public class ProjectServiceTests
     private (AppDbContext db, ProjectService projectService) CreateProjectService()
     {
         var db = CreateInMemoryDb();
-        var projectRepository = new ProjectRepository(db);
+        var mockProjectRepoLogger = new Mock<ILogger<ProjectRepository>>();
+        var projectRepository = new ProjectRepository(db, mockProjectRepoLogger.Object);
         var commentRepository = new CommentRepository(db);
         var taskRepository = new TaskRepository(db);
-        var projectService = new ProjectService(projectRepository, commentRepository, taskRepository);
+        var mockLogger = new Mock<ILogger<ProjectService>>();
+        var projectService = new ProjectService(projectRepository, commentRepository, taskRepository, mockLogger.Object);
         return (db, projectService);
     }
 

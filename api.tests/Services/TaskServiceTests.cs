@@ -6,6 +6,8 @@ using Api.Models;
 using Api.Services;
 using Api.Repositories;
 using Api.Types;
+using Microsoft.Extensions.Logging;
+using Moq;
 
 namespace Api.Tests.Services;
 
@@ -22,10 +24,12 @@ public class TaskServiceTests
     private (AppDbContext db, TaskService taskService) CreateTaskService()
     {
         var db = CreateInMemoryDb();
+        var mockProjectRepoLogger = new Mock<ILogger<ProjectRepository>>();
+        var projectRepository = new ProjectRepository(db, mockProjectRepoLogger.Object);
         var taskRepository = new TaskRepository(db);
-        var projectRepository = new ProjectRepository(db);
         var commentRepository = new CommentRepository(db);
-        var taskService = new TaskService(taskRepository, projectRepository, commentRepository);
+        var mockLogger = new Mock<ILogger<TaskService>>();
+        var taskService = new TaskService(taskRepository, projectRepository, commentRepository, mockLogger.Object);
         return (db, taskService);
     }
 

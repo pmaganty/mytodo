@@ -7,6 +7,7 @@ using Api.Models;
 using Api.Services;
 using Api.Types;
 using System.Security.Claims;
+using Microsoft.Extensions.Logging;
 
 namespace Api.Tests.Services;
 
@@ -26,7 +27,8 @@ public class AuthServiceTests
         mockTokenService
             .Setup(t => t.GenerateToken(It.IsAny<User>()))
             .Returns("fake-jwt-token");
-        return new AuthService(db, mockTokenService.Object);
+        var mockLogger = new Mock<ILogger<AuthService>>();
+        return new AuthService(db, mockTokenService.Object, mockLogger.Object);
     }
 
     [Fact]
