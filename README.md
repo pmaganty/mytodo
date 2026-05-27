@@ -1,6 +1,6 @@
 # mytodo
 
-A personal task management app designed for everyday people — not project managers. Think of it as a better version of your notes app, with a clean UI, project organization, and the ability to collaborate with others.
+A personal task management app designed for everyday people. Think of it as a better version of your notes app, with a clean UI, project organization, and the ability to collaborate with others.
 
 [add screenshot here — dashboard with projects]
 
