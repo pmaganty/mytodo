@@ -17,7 +17,8 @@ public class ProjectRepository
     public async Task<IEnumerable<ProjectListResponse>> GetProjectsByUserId(Guid userId)
     {
         return await _db.Projects
-            .Where(p => p.OwnerId == userId)
+            .Where(p => p.OwnerId == userId || 
+                _db.ProjectMembers.Any(pm => pm.ProjectId == p.Id && pm.UserId == userId))
             .OrderByDescending(p => p.CreatedAt)
             .Select(p => new ProjectListResponse(
                 p.Id,
@@ -65,7 +66,9 @@ public class ProjectRepository
     public async Task<Project?> GetProjectById(Guid projectId, Guid userId)
     {
         return await _db.Projects
-            .FirstOrDefaultAsync(p => p.Id == projectId && p.OwnerId == userId);
+            .FirstOrDefaultAsync(p => p.Id == projectId && 
+                (p.OwnerId == userId || 
+                _db.ProjectMembers.Any(pm => pm.ProjectId == p.Id && pm.UserId == userId)));
     }
 
     public async Task<Project> UpdateProject(Project project)
@@ -78,7 +81,74 @@ public class ProjectRepository
 
     public async Task DeleteProject(Project project)
     {
+        // Delete comments on tasks belonging to this project
+        var taskIds = await _db.Tasks
+            .Where(t => t.ProjectId == project.Id)
+            .Select(t => t.Id)
+            .ToListAsync();
+
+        var taskComments = await _db.Comments
+            .Where(c => c.TaskId.HasValue && taskIds.Contains(c.TaskId.Value))
+            .ToListAsync();
+        _db.Comments.RemoveRange(taskComments);
+
+        // Delete project comments
+        var projectComments = await _db.Comments
+            .Where(c => c.ProjectId == project.Id)
+            .ToListAsync();
+        _db.Comments.RemoveRange(projectComments);
+
+        // Delete tasks
+        var tasks = await _db.Tasks
+            .Where(t => t.ProjectId == project.Id)
+            .ToListAsync();
+        _db.Tasks.RemoveRange(tasks);
+
+        // Delete project
         _db.Projects.Remove(project);
+        
         await _db.SaveChangesAsync();
+    }
+
+    public async Task<IEnumerable<ProjectMemberResponse>> GetProjectMembers(Guid projectId)
+    {
+        return await _db.ProjectMembers
+            .Where(pm => pm.ProjectId == projectId)
+            .Select(pm => new ProjectMemberResponse(
+                pm.UserId,
+                pm.User.Name,
+                pm.User.Email,
+                pm.Role
+            ))
+            .ToListAsync();
+    }
+
+    public async Task<bool> IsProjectMember(Guid projectId, Guid userId)
+    {
+        return await _db.ProjectMembers
+            .AnyAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
+    }
+
+    public async Task AddProjectMember(Guid projectId, Guid userId)
+    {
+        var member = new ProjectMember
+        {
+            ProjectId = projectId,
+            UserId = userId,
+            Role = "Member"
+        };
+        _db.ProjectMembers.Add(member);
+        await _db.SaveChangesAsync();
+    }
+
+    public async Task RemoveProjectMember(Guid projectId, Guid userId)
+    {
+        var member = await _db.ProjectMembers
+            .FirstOrDefaultAsync(pm => pm.ProjectId == projectId && pm.UserId == userId);
+        if (member != null)
+        {
+            _db.ProjectMembers.Remove(member);
+            await _db.SaveChangesAsync();
+        }
     }
 }

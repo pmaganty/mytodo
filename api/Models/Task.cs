@@ -18,4 +18,7 @@ public class TodoTask
 
     public Guid CreatedById { get; set; }
     public User CreatedBy { get; set; } = null!;
+
+    public Guid? CompletedById { get; set; }
+    public User? CompletedBy { get; set; }
 }

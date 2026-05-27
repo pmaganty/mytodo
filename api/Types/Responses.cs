@@ -47,7 +47,11 @@ public record TaskResponse(
     string? Type,
     DateTime? DueDate,
     DateTime? CompletedAt,
+    Guid? CompletedById,
+    string? CompletedByName,
     Guid ProjectId,
+    Guid CreatedById,
+    string CreatedByName,
     DateTime CreatedAt,
     DateTime UpdatedAt
 );
@@ -60,4 +64,11 @@ public record CommentResponse(
     Guid? TaskId,
     Guid? ProjectId,
     DateTime CreatedAt
+);
+
+public record ProjectMemberResponse(
+    Guid UserId,
+    string Name,
+    string Email,
+    string Role
 );

@@ -40,3 +40,5 @@ public record CreateCommentRequest(
 public record UpdateCommentRequest(
     string Body
 );
+
+public record AddMemberRequest(Guid UserId);

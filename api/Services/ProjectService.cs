@@ -156,19 +156,39 @@ public class ProjectService
         };
 
         var created = await _taskRepository.CreateTask(task);
+        return (await _taskRepository.GetTaskResponseById(created.Id))!;
+    }
 
-        return new TaskResponse(
-            created.Id,
-            created.Title,
-            created.Description,
-            created.Priority,
-            created.Status,
-            created.Type,
-            created.DueDate,
-            created.CompletedAt,
-            created.ProjectId,
-            created.CreatedAt,
-            created.UpdatedAt
-        );
+    public async Task<IEnumerable<ProjectMemberResponse>> GetProjectMembers(Guid projectId, Guid userId)
+    {
+        var project = await _projectRepository.GetProjectById(projectId, userId);
+        if (project == null) throw new KeyNotFoundException("Project not found");
+        return await _projectRepository.GetProjectMembers(projectId);
+    }
+
+    public async Task AddProjectMember(Guid projectId, Guid userId, Guid newMemberId)
+    {
+        var project = await _projectRepository.GetProjectById(projectId, userId);
+        if (project == null) throw new KeyNotFoundException("Project not found");
+
+        if (project.OwnerId != userId)
+            throw new UnauthorizedAccessException("Only the project owner can add members");
+
+        var alreadyMember = await _projectRepository.IsProjectMember(projectId, newMemberId);
+        if (alreadyMember)
+            throw new ArgumentException("User is already a member of this project");
+
+        await _projectRepository.AddProjectMember(projectId, newMemberId);
+    }
+
+    public async Task RemoveProjectMember(Guid projectId, Guid userId, Guid memberId)
+    {
+        var project = await _projectRepository.GetProjectById(projectId, userId);
+        if (project == null) throw new KeyNotFoundException("Project not found");
+
+        if (project.OwnerId != userId)
+            throw new UnauthorizedAccessException("Only the project owner can remove members");
+
+        await _projectRepository.RemoveProjectMember(projectId, memberId);
     }
 }

@@ -21,7 +21,6 @@ public class TaskService
     {
         var project = await _projectRepository.GetProjectById(projectId, userId);
         if (project == null) throw new KeyNotFoundException("Project not found");
-
         return await _taskRepository.GetTasksByProjectId(projectId);
     }
 
@@ -46,20 +45,7 @@ public class TaskService
         };
 
         var created = await _taskRepository.CreateTask(task);
-
-        return new TaskResponse(
-            created.Id,
-            created.Title,
-            created.Description,
-            created.Priority,
-            created.Status,
-            created.Type,
-            created.DueDate,
-            created.CompletedAt,
-            created.ProjectId,
-            created.CreatedAt,
-            created.UpdatedAt
-        );
+        return (await _taskRepository.GetTaskResponseById(created.Id))!;
     }
 
     public async Task<TaskResponse> UpdateTask(Guid taskId, Guid userId, UpdateTaskRequest request)
@@ -75,27 +61,19 @@ public class TaskService
         task.DueDate = request.DueDate;
         task.CompletedAt = request.CompletedAt;
 
+        if (request.CompletedAt != null && task.CompletedById == null)
+            task.CompletedById = userId;
+        else if (request.CompletedAt == null)
+            task.CompletedById = null;
+
         if (!string.IsNullOrWhiteSpace(request.Priority))
             task.Priority = request.Priority;
 
         if (!string.IsNullOrWhiteSpace(request.Status))
             task.Status = request.Status;
 
-        var updated = await _taskRepository.UpdateTask(task);
-
-        return new TaskResponse(
-            updated.Id,
-            updated.Title,
-            updated.Description,
-            updated.Priority,
-            updated.Status,
-            updated.Type,
-            updated.DueDate,
-            updated.CompletedAt,
-            updated.ProjectId,
-            updated.CreatedAt,
-            updated.UpdatedAt
-        );
+        await _taskRepository.UpdateTask(task);
+        return (await _taskRepository.GetTaskResponseById(taskId))!;
     }
 
     public async Task DeleteTask(Guid taskId, Guid userId)
@@ -107,22 +85,14 @@ public class TaskService
 
     public async Task<TaskResponse> GetTaskById(Guid taskId, Guid userId)
     {
-        var task = await _taskRepository.GetTaskById(taskId, userId);
+        var task = await _taskRepository.GetTaskByIdForView(taskId);
         if (task == null) throw new KeyNotFoundException("Task not found");
 
-        return new TaskResponse(
-            task.Id,
-            task.Title,
-            task.Description,
-            task.Priority,
-            task.Status,
-            task.Type,
-            task.DueDate,
-            task.CompletedAt,
-            task.ProjectId,
-            task.CreatedAt,
-            task.UpdatedAt
-        );
+        // verify user has access to the project
+        var project = await _projectRepository.GetProjectById(task.ProjectId, userId);
+        if (project == null) throw new KeyNotFoundException("Task not found");
+
+        return (await _taskRepository.GetTaskResponseById(taskId))!;
     }
 
     public async Task<IEnumerable<CommentResponse>> GetAllCommentsForTask(Guid taskId, Guid userId)

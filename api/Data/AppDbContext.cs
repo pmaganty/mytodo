@@ -11,4 +11,6 @@ public class AppDbContext : DbContext
     public DbSet<Project> Projects { get; set; }
     public DbSet<TodoTask> Tasks { get; set; }
     public DbSet<Comment> Comments { get; set; }
+    public DbSet<ProjectMember> ProjectMembers { get; set; }
+
 }

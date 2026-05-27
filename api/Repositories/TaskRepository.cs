@@ -28,13 +28,25 @@ public class TaskRepository
                 t.Type,
                 t.DueDate,
                 t.CompletedAt,
+                t.CompletedById,
+                t.CompletedBy != null ? t.CompletedBy.Name : null,
                 t.ProjectId,
+                t.CreatedById,
+                t.CreatedBy.Name,
                 t.CreatedAt,
                 t.UpdatedAt
             ))
             .ToListAsync();
     }
 
+    // For viewing - any project member can access
+    public async Task<TodoTask?> GetTaskByIdForView(Guid taskId)
+    {
+        return await _db.Tasks
+            .FirstOrDefaultAsync(t => t.Id == taskId);
+    }
+
+    // For editing - only the creator can access
     public async Task<TodoTask?> GetTaskById(Guid taskId, Guid userId)
     {
         return await _db.Tasks
@@ -60,5 +72,29 @@ public class TaskRepository
     {
         _db.Tasks.Remove(task);
         await _db.SaveChangesAsync();
+    }
+
+    public async Task<TaskResponse?> GetTaskResponseById(Guid taskId)
+    {
+        return await _db.Tasks
+            .Where(t => t.Id == taskId)
+            .Select(t => new TaskResponse(
+                t.Id,
+                t.Title,
+                t.Description,
+                t.Priority,
+                t.Status,
+                t.Type,
+                t.DueDate,
+                t.CompletedAt,
+                t.CompletedById,
+                t.CompletedBy != null ? t.CompletedBy.Name : null,
+                t.ProjectId,
+                t.CreatedById,
+                t.CreatedBy.Name,
+                t.CreatedAt,
+                t.UpdatedAt
+            ))
+            .FirstOrDefaultAsync();
     }
 }

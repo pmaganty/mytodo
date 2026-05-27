@@ -69,5 +69,26 @@ public static class ProjectRoutes
             var comment = await projectService.AddCommentToProject(projectId, userId, request);
             return Results.Created($"/api/comments/{comment.Id}", comment);
         }).RequireAuthorization();
+
+        app.MapGet("/api/projects/{projectId}/members", async (Guid projectId, HttpContext context, ProjectService projectService) =>
+        {
+            var userId = AuthHelper.GetUserId(context);
+            var members = await projectService.GetProjectMembers(projectId, userId);
+            return Results.Ok(members);
+        }).RequireAuthorization();
+
+        app.MapPost("/api/projects/{projectId}/members", async (Guid projectId, HttpContext context, AddMemberRequest request, ProjectService projectService) =>
+        {
+            var userId = AuthHelper.GetUserId(context);
+            await projectService.AddProjectMember(projectId, userId, request.UserId);
+            return Results.Ok();
+        }).RequireAuthorization();
+
+        app.MapDelete("/api/projects/{projectId}/members/{memberId}", async (Guid projectId, Guid memberId, HttpContext context, ProjectService projectService) =>
+        {
+            var userId = AuthHelper.GetUserId(context);
+            await projectService.RemoveProjectMember(projectId, userId, memberId);
+            return Results.NoContent();
+        }).RequireAuthorization();
     }
 }

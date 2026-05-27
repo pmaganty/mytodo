@@ -85,5 +85,7 @@ app.UseAuthorization();
 app.MapAuthRoutes();
 app.MapProjectRoutes();
 app.MapTaskRoutes();
+app.MapCommentRoutes();
+app.MapUserRoutes();
 
 app.Run();
