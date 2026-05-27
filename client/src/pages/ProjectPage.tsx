@@ -58,9 +58,17 @@ export default function ProjectPage() {
     }
   };
 
+  const handleProjectUpdated = (updatedProject: Project) => {
+    setProject(updatedProject);
+  };
+
   const handleAddComment = async (body: string) => {
     const { data } = await api.post(`/api/projects/${id}/comments`, { body });
     setComments((prev) => [data, ...prev]);
+  };
+
+  const handleProjectDeleted = () => {
+    navigate("/");
   };
 
   if (isLoading) {
@@ -89,7 +97,11 @@ export default function ProjectPage() {
           ← Back to projects
         </button>
 
-        <ProjectDetailCard project={project} />
+        <ProjectDetailCard
+          project={project}
+          onProjectUpdated={handleProjectUpdated}
+          onProjectDeleted={handleProjectDeleted}
+        />
 
         <div className="space-y-6">
           <TaskList

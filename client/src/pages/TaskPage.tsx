@@ -42,6 +42,10 @@ export default function TaskPage() {
     setComments((prev) => [data, ...prev]);
   };
 
+  const handleTaskDeleted = () => {
+    navigate(`/projects/${task?.projectId}`);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen bg-brand-bg">
@@ -68,7 +72,11 @@ export default function TaskPage() {
           ← Back
         </button>
 
-        <TaskDetailCard task={task} onTaskUpdated={handleTaskUpdated} />
+        <TaskDetailCard
+          task={task}
+          onTaskUpdated={handleTaskUpdated}
+          onTaskDeleted={handleTaskDeleted}
+        />
         
         <CommentList
           comments={comments}

@@ -27,15 +27,19 @@ export default function TaskRow({ task, onTaskUpdated }: TaskRowProps) {
   const handleToggleComplete = async (e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      const { data } = await api.patch(`/api/tasks/${task.id}`, {
+        const { data } = await api.patch(`/api/tasks/${task.id}`, {
+        title: task.title,
+        description: task.description,
+        priority: task.priority,
         status: isDone ? "Todo" : "Done",
+        dueDate: task.dueDate,
         completedAt: isDone ? null : new Date().toISOString(),
-      });
-      onTaskUpdated(data);
+        });
+        onTaskUpdated(data);
     } catch {
-      console.error("Failed to update task");
+        console.error("Failed to update task");
     }
-  };
+    };
 
   return (
     <tr
