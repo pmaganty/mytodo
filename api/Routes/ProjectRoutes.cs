@@ -7,10 +7,11 @@ public static class ProjectRoutes
 {
     public static void MapProjectRoutes(this WebApplication app)
     {
-        app.MapGet("/api/projects", async (HttpContext context, ProjectService projectService) =>
+        app.MapGet("/api/projects", async (HttpContext context, ProjectService projectService, string? search) =>
         {
             var userId = AuthHelper.GetUserId(context);
-            var projects = await projectService.GetProjectsForUser(userId);
+            var filter = new ProjectFilterRequest(search);
+            var projects = await projectService.GetProjectsForUser(userId, filter);
             return Results.Ok(projects);
         }).RequireAuthorization();
 
@@ -45,15 +46,10 @@ public static class ProjectRoutes
         app.MapGet("/api/projects/{projectId}/tasks", async (
             Guid projectId,
             HttpContext context,
-            ProjectService projectService,
-            string? status,
-            string? priority,
-            Guid? createdById,
-            string? sortBy,
-            string? sortOrder) =>
+            ProjectService projectService) =>
         {
             var userId = AuthHelper.GetUserId(context);
-            var filter = new TaskFilterRequest(status, priority, createdById, sortBy, sortOrder);
+            var filter = projectService.ParseTaskFilter(context);
             var tasks = await projectService.GetAllTasksForProject(projectId, userId, filter);
             return Results.Ok(tasks);
         }).RequireAuthorization();

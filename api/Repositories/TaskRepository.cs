@@ -19,14 +19,14 @@ public class TaskRepository
         var query = _db.Tasks.Where(t => t.ProjectId == projectId);
 
         // Filtering
-        if (!string.IsNullOrWhiteSpace(filter?.Status))
-            query = query.Where(t => t.Status == filter.Status);
+        if (filter?.Status != null && filter.Status.Any())
+            query = query.Where(t => filter.Status.Contains(t.Status));
 
-        if (!string.IsNullOrWhiteSpace(filter?.Priority))
-            query = query.Where(t => t.Priority == filter.Priority);
+        if (filter?.Priority != null && filter.Priority.Any())
+            query = query.Where(t => filter.Priority.Contains(t.Priority));
 
-        if (filter?.CreatedById != null)
-            query = query.Where(t => t.CreatedById == filter.CreatedById);
+        if (filter?.CreatedById != null && filter.CreatedById.Any())
+            query = query.Where(t => filter.CreatedById.Contains(t.CreatedById));
 
         // Sorting
         query = filter?.SortBy?.ToLower() switch

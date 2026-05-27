@@ -14,11 +14,16 @@ public class ProjectRepository
         _db = db;
     }
 
-    public async Task<IEnumerable<ProjectListResponse>> GetProjectsByUserId(Guid userId)
+    public async Task<IEnumerable<ProjectListResponse>> GetProjectsByUserId(Guid userId, ProjectFilterRequest? filter = null)
     {
-        return await _db.Projects
-            .Where(p => p.OwnerId == userId || 
-                _db.ProjectMembers.Any(pm => pm.ProjectId == p.Id && pm.UserId == userId))
+        var query = _db.Projects
+            .Where(p => p.OwnerId == userId ||
+                _db.ProjectMembers.Any(pm => pm.ProjectId == p.Id && pm.UserId == userId));
+
+        if (!string.IsNullOrWhiteSpace(filter?.Search))
+            query = query.Where(p => p.Title.ToLower().Contains(filter.Search.ToLower()));
+
+        return await query
             .OrderByDescending(p => p.CreatedAt)
             .Select(p => new ProjectListResponse(
                 p.Id,

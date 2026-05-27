@@ -17,9 +17,9 @@ public class ProjectService
         _taskRepository = taskRepository;
     }
 
-    public async Task<IEnumerable<ProjectListResponse>> GetProjectsForUser(Guid userId)
+    public async Task<IEnumerable<ProjectListResponse>> GetProjectsForUser(Guid userId, ProjectFilterRequest? filter = null)
     {
-        return await _projectRepository.GetProjectsByUserId(userId);
+        return await _projectRepository.GetProjectsByUserId(userId, filter);
     }
 
     public async Task<ProjectResponse> CreateProject(Guid userId, CreateProjectRequest request)
@@ -190,5 +190,39 @@ public class ProjectService
             throw new UnauthorizedAccessException("Only the project owner can remove members");
 
         await _projectRepository.RemoveProjectMember(projectId, memberId);
+    }
+
+    public TaskFilterRequest ParseTaskFilter(HttpContext context)
+    {
+        var status = context.Request.Query["status"]
+            .Where(s => s != null)
+            .Select(s => s!)
+            .ToList();
+
+        var priority = context.Request.Query["priority"]
+            .Where(p => p != null)
+            .Select(p => p!)
+            .ToList();
+
+        var createdByIdStrings = context.Request.Query["createdById"]
+            .Where(s => s != null)
+            .Select(s => s!)
+            .ToList();
+
+        var createdById = createdByIdStrings
+            .Where(s => Guid.TryParse(s, out _))
+            .Select(s => Guid.Parse(s))
+            .ToList();
+
+        var sortBy = context.Request.Query["sortBy"].FirstOrDefault();
+        var sortOrder = context.Request.Query["sortOrder"].FirstOrDefault();
+
+        return new TaskFilterRequest(
+            status.Any() ? status : null,
+            priority.Any() ? priority : null,
+            createdById.Any() ? createdById : null,
+            sortBy,
+            sortOrder
+        );
     }
 }

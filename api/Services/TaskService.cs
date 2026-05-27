@@ -50,27 +50,47 @@ public class TaskService
 
     public async Task<TaskResponse> UpdateTask(Guid taskId, Guid userId, UpdateTaskRequest request)
     {
-        var task = await _taskRepository.GetTaskById(taskId, userId);
+        var task = await _taskRepository.GetTaskByIdForView(taskId);
         if (task == null) throw new KeyNotFoundException("Task not found");
 
-        if (!string.IsNullOrWhiteSpace(request.Title))
-            task.Title = request.Title.Trim();
+        // verify user has access to the project
+        var project = await _projectRepository.GetProjectById(task.ProjectId, userId);
+        if (project == null) throw new KeyNotFoundException("Task not found");
 
-        task.Description = request.Description?.Trim();
-        task.Type = request.Type;
-        task.DueDate = request.DueDate;
-        task.CompletedAt = request.CompletedAt;
+        // only the creator can edit title, description, priority, type, duedate
+        bool isCreator = task.CreatedById == userId;
+        if (!isCreator)
+        {
+            // non-creators can only update status and completedAt
+            task.CompletedAt = request.CompletedAt;
+            task.Status = !string.IsNullOrWhiteSpace(request.Status) ? request.Status : task.Status;
 
-        if (request.CompletedAt != null && task.CompletedById == null)
-            task.CompletedById = userId;
-        else if (request.CompletedAt == null)
-            task.CompletedById = null;
+            if (request.CompletedAt != null && task.CompletedById == null)
+                task.CompletedById = userId;
+            else if (request.CompletedAt == null)
+                task.CompletedById = null;
+        }
+        else
+        {
+            if (!string.IsNullOrWhiteSpace(request.Title))
+                task.Title = request.Title.Trim();
 
-        if (!string.IsNullOrWhiteSpace(request.Priority))
-            task.Priority = request.Priority;
+            task.Description = request.Description?.Trim();
+            task.Type = request.Type;
+            task.DueDate = request.DueDate;
+            task.CompletedAt = request.CompletedAt;
 
-        if (!string.IsNullOrWhiteSpace(request.Status))
-            task.Status = request.Status;
+            if (request.CompletedAt != null && task.CompletedById == null)
+                task.CompletedById = userId;
+            else if (request.CompletedAt == null)
+                task.CompletedById = null;
+
+            if (!string.IsNullOrWhiteSpace(request.Priority))
+                task.Priority = request.Priority;
+
+            if (!string.IsNullOrWhiteSpace(request.Status))
+                task.Status = request.Status;
+        }
 
         await _taskRepository.UpdateTask(task);
         return (await _taskRepository.GetTaskResponseById(taskId))!;
@@ -109,8 +129,12 @@ public class TaskService
 
     public async Task<CommentResponse> AddCommentToTask(Guid taskId, Guid userId, CreateCommentRequest request)
     {
-        var task = await _taskRepository.GetTaskById(taskId, userId);
+        var task = await _taskRepository.GetTaskByIdForView(taskId);
         if (task == null) throw new KeyNotFoundException("Task not found");
+
+        // verify user has access to the project
+        var project = await _projectRepository.GetProjectById(task.ProjectId, userId);
+        if (project == null) throw new KeyNotFoundException("Task not found");
 
         if (string.IsNullOrWhiteSpace(request.Body))
             throw new ArgumentException("Body is required");

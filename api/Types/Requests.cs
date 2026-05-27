@@ -46,9 +46,13 @@ public record AddMemberRequest(
 );
 
 public record TaskFilterRequest(
-    string? Status,
-    string? Priority,
-    Guid? CreatedById,
+    List<string>? Status,
+    List<string>? Priority,
+    List<Guid>? CreatedById,
     string? SortBy,
     string? SortOrder
+);
+
+public record ProjectFilterRequest(
+    string? Search
 );
