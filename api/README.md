@@ -47,8 +47,8 @@ api/
   Routes/                   → HTTP route handlers — thin layer that receives requests and calls services
   Services/                 → Business logic layer — all application logic lives here
   Types/
-    Requests.cs             → Incoming request shapes (DTOs)
-    Responses.cs            → Outgoing response shapes (DTOs)
+    Requests.cs             → Incoming request shapes
+    Responses.cs            → Outgoing response shapes
   appsettings.json          → App configuration (JWT settings, CORS origins)
   Dockerfile                → Docker container definition for Railway deployment
   Program.cs                → Application entry point — wires up all services, middleware, and routes
@@ -60,12 +60,7 @@ api/
 
 ### Minimal API over MVC Controllers
 
-.NET offers two approaches for building HTTP APIs: traditional MVC Controllers and the newer Minimal API pattern. This project uses **Minimal API** for several reasons:
-
-- Microsoft officially recommends it for new projects: *"Minimal APIs are the recommended approach for building fast HTTP APIs with ASP.NET Core"*
-- Less boilerplate — no need for controller classes, attribute routing, or action methods
-- Slightly better performance due to fewer abstraction layers
-- Appropriate for an API of this scope — MVC controllers add structure that pays off in very large codebases but adds ceremony here
+.NET offers two approaches for building HTTP APIs: traditional MVC Controllers and the newer Minimal API pattern. This project uses **Minimal API** since Microsoft officially recommends it for new projects for building fast HTTP APIs with ASP.NET Core.
 
 For a larger application with dozens of endpoints and complex routing requirements, MVC controllers would be the better choice.
 
@@ -149,7 +144,7 @@ JWT-based stateless authentication:
 4. Every subsequent request includes the token in the `Authorization: Bearer` header
 5. JWT middleware validates the token signature on every protected request
 
-Tokens expire after **7 days**. In production, the signing secret is overridden by a Railway environment variable. The value in `appsettings.json` is a development placeholder only."
+Tokens expire after **7 days**. In production, the signing secret is overridden by a Railway environment variable. The value in `appsettings.json` is a development placeholder only.
 
 ### Authorization
 
@@ -172,7 +167,7 @@ Two levels of authorization are enforced:
 
 ### Password Security
 
-Passwords are hashed with BCrypt before storage. BCrypt is intentionally slow and includes a salt, making it resistant to brute force and rainbow table attacks. Plain text passwords are never stored or logged.
+Passwords are hashed with BCrypt before storage. Plain text passwords are never stored or logged.
 
 ---
 
@@ -290,8 +285,6 @@ dotnet test
 
 Dependencies like `TokenService` and `ILogger` are mocked using Moq.
 
-**Note on FluentAssertions:** The project uses FluentAssertions for readable test assertions. This library requires a commercial license for commercial use — for an MVP evaluation this is acceptable, but a production codebase would either purchase a license or switch to a different assertions library.
-
 ---
 
 ## Logging
@@ -318,7 +311,7 @@ SQLite was chosen per the project requirements and is appropriate for this MVP. 
 Current tokens expire after 7 days. A production system would use short-lived access tokens (15 minutes) paired with long-lived refresh tokens, reducing the window of exposure if a token is compromised.
 
 ### Social Auth (Google/GitHub Login)
-Most personal apps benefit from OAuth login. Users don't want to manage another password. This would be implemented using ASP.NET Core's OAuth middleware.
+Most personal apps benefit from OAuth login. Users don't want to manage another password. This could be implemented using ASP.NET Core's OAuth middleware.
 
 ### Image Uploads (S3/Cloudflare R2)
 Both `User.AvatarUrl` and `Project.CoverImageUrl` fields exist on the models but are not currently exposed in the UI. Implementing this properly requires:
