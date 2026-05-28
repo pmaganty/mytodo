@@ -38,6 +38,12 @@ export default function TaskDetailCard({ task, onTaskUpdated, onTaskDeleted, isO
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  /**
+  * handleUpdate sends a PATCH request with the current field values merged with
+  * any specific fields passed in. This is used by onBlur on text fields — when
+  * the user clicks away from a field, the change is automatically saved without
+  * needing an explicit save button.
+  */
   const handleUpdate = async (fields: Partial<Task>) => {
     setIsSaving(true);
     try {
@@ -83,6 +89,11 @@ export default function TaskDetailCard({ task, onTaskUpdated, onTaskDeleted, isO
         {/* Title + Delete button */}
         <div className="flex items-start justify-between mb-6">
             <div className="flex-1">
+                {/* 
+                Fields are conditionally editable based on isOwner.
+                Task creators see editable inputs with onBlur auto-save.
+                Project members who didn't create the task see read-only text.
+                */}
                 {isOwner ? (
                 <input
                     value={title}

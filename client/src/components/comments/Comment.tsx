@@ -20,10 +20,6 @@ export default function Comment({ comment, onCommentUpdated, onCommentDeleted }:
   const handleUpdate = async () => {
     if (!body.trim()) return;
     setIsLoading(true);
-    console.log("comment.authorId:", comment.authorId);
-    console.log("user.id:", user?.id);
-    console.log("Patching URL:", `/api/comments/${comment.id}`);
-    console.log("Body:", { body: body.trim() });
     try {
       const { data } = await api.patch(`/api/comments/${comment.id}`, { body: body.trim() });
       onCommentUpdated(data);

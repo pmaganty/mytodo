@@ -13,6 +13,11 @@ export default function CommentList({ comments: initialComments, onAddComment }:
   const [body, setBody] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+   /**
+   * Calls the parent's onAddComment handler (which posts to the API),
+   * then prepends the new comment to the local state so it appears
+   * immediately without a page refresh.
+   */
   const handleSubmit = async () => {
     if (!body.trim()) return;
     setIsLoading(true);
