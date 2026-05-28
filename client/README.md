@@ -31,61 +31,12 @@ A React + TypeScript frontend built for everyday people who want a simple, perso
 
 ---
 
-## Directory Structure
-
-```
-client/src/
-  components/
-    comments/
-      Comment.tsx           → Individual comment with inline edit and delete (author only)
-      CommentList.tsx        → Comment thread with inline submit input
-    layout/
-      Navbar.tsx             → Top navigation bar with app title and logout
-    projects/
-      CreateProjectModal.tsx → Modal form for creating a new project
-      EditProjectModal.tsx   → Modal form for editing an existing project (prepopulated)
-      ProjectCard.tsx        → Dashboard project card with progress bar
-      ProjectDetailCard.tsx  → Full project header with stats, edit/share/delete actions
-      ProjectList.tsx        → Responsive grid of ProjectCards with empty state
-      ShareProjectModal.tsx  → User search and member management for project sharing
-    tasks/
-      CreateTaskModal.tsx    → Modal form for creating a new task
-      TaskDetailCard.tsx     → Full task view with inline editing (creator only)
-      TaskFilters.tsx        → Multi-select filter pills for status, priority, created by
-      TaskList.tsx           → Task table with collapsible filters and sortable columns
-      TaskRow.tsx            → Single task row with quick-complete checkbox
-    ui/
-      Button.tsx             → Reusable button with variant and size props
-      Card.tsx               → Reusable card container with optional hover state
-      ConfirmModal.tsx       → Reusable confirmation dialog for destructive actions
-      Input.tsx              → Reusable input supporting text, email, password, date, textarea
-      Modal.tsx              → Reusable modal with backdrop click and Escape key to close
-    ProtectedRoute.tsx       → Route wrapper that redirects unauthenticated users to login
-  context/
-    AuthContext.tsx           → Global auth state — user, token, login, logout
-  pages/
-    DashboardPage.tsx         → Project list with search
-    LoginPage.tsx             → Login and register (toggled on same page)
-    ProjectPage.tsx           → Project detail with tasks, comments, members
-    TaskPage.tsx              → Task detail with comments
-  services/
-    api.ts                    → Configured Axios instance with auth interceptor
-  types/
-    index.ts                  → TypeScript interfaces matching backend response shapes
-  App.tsx                     → Route definitions
-  main.tsx                    → App entry point with providers
-  index.css                   → Tailwind imports and design token definitions
-```
-
----
-
 ## Pages
 
 ### Login Page (`/login`)
-![alt text](image.png)
+<img src="./public/login.png" alt="alt text" width="400"> <img src="./public/register.png" alt="alt text" width="400">
 
 Single page that handles both login and registration via a toggle. No separate `/register` route — toggling between the two forms on the same page keeps the UX simple and avoids unnecessary navigation.
-![alt text](image-1.png)
 
 **Key decisions:**
 - Combined login/register on one page reduces friction for new users
@@ -95,26 +46,27 @@ Single page that handles both login and registration via a toggle. No separate `
 ---
 
 ### Dashboard Page (`/`)
-[add screenshot here]
-
 The main page after login. Shows all projects the user owns or has been shared with, in a responsive card grid ordered by most recently created.
 
+<img src="./public/projects.png" alt="alt text" width="800">
+<img src="./public/newProject.png" alt="alt text" width="400"> <img src="./public/searchProjects.png" alt="alt text" width="600">
+
 **Key decisions:**
-- Search bar on the right filters projects by title via a backend API call with 300ms debounce — no client-side filtering
+- Search bar on the right filters projects by title via a backend API call — no client-side filtering
 - Project cards show a progress bar (completed tasks / total tasks) so users can see project health at a glance
-- Empty state has personality: guides the user to create their first project
 - "New Project" button opens a modal — keeps the user in context rather than navigating away
 
 ---
 
 ### Project Page (`/projects/:id`)
-[add screenshot here]
-
 The project detail page. Shows project info, all tasks in a table, and project-level comments.
+
+<img src="./public/projectPage.png" alt="alt text" width="400">  <img src="./public/filters.png" alt="alt text" width="600">
+<img src="./public/share.png" alt="alt text" width="400">
 
 **Key decisions:**
 - Tasks displayed as a table rather than cards — tables are better for comparing multiple attributes (status, priority, due date) across many items
-- Filters are collapsible to save space — a badge shows how many filters are active even when collapsed
+- Filters are collapsible — a badge shows how many filters are active even when collapsed
 - Column headers are clickable to sort — standard table UX pattern users expect
 - Quick-complete checkbox on each task row — most common action shouldn't require opening the task
 - Edit/Share/Delete buttons only shown to the project owner — members see a read-only header
@@ -123,9 +75,9 @@ The project detail page. Shows project info, all tasks in a table, and project-l
 ---
 
 ### Task Page (`/tasks/:id`)
-[add screenshot here]
-
 The task detail page. Shows all task fields and task-level comments.
+
+<img src="./public/taskPage.png" alt="alt text" width="400">
 
 **Key decisions:**
 - Fields are inline editable for the task creator — clicking a field makes it editable, blur saves automatically. No separate edit mode needed.
@@ -258,8 +210,6 @@ No external state management library (Redux, Zustand etc.) is used. State lives 
 
 **Component-level state** — UI state like modal open/closed, loading states, and form inputs live in the component that uses them.
 
-This approach keeps state as local as possible — a React best practice that makes components easier to reason about and test.
-
 ---
 
 ## API Communication
@@ -314,19 +264,13 @@ Reads from the `VITE_API_URL` environment variable in production, falls back to 
 ## Tradeoffs & Future Improvements
 
 ### No Frontend Testing
-Unit tests were not written for the React components. The backend has 27 unit tests covering the most critical authorization and business logic paths. Frontend component testing (React Testing Library) and end-to-end testing (Playwright/Cypress) would be the next step for a production application. The decision to skip frontend testing for this MVP was made to prioritize backend correctness, logging, and deployment.
+Unit tests were not written for the React components. The backend has unit tests covering the most critical authorization and business logic paths. Frontend component testing (React Testing Library) and end-to-end testing (Playwright/Cypress) would be the next step for a production application. The decision to skip frontend testing for this MVP was made to prioritize backend correctness, logging, and deployment.
 
 ### localStorage for Token Storage
 JWTs are stored in `localStorage` for simplicity. The alternative is `httpOnly` cookies which are not accessible to JavaScript and therefore immune to XSS attacks. For a production app, `httpOnly` cookies would be the more secure choice.
 
-### No Optimistic Updates
-Most UI updates wait for the API response before updating state. Optimistic updates (updating the UI immediately and rolling back on failure) would make the app feel snappier, particularly for task completion toggling.
-
 ### No Pagination
-Task and comment lists fetch all records. For projects with many tasks, infinite scroll or pagination would be needed. The backend already supports this pattern — adding `.Skip()` and `.Take()` to the repository queries would be straightforward.
-
-### No Offline Support
-The app requires an internet connection. A service worker with offline caching would allow read-only access when offline, with changes synced when connection is restored.
+Task and comment lists fetch all records. For projects with many tasks, infinite scroll or pagination would be needed.
 
 ### Cover Image & Avatar Support
 `Project.coverImageUrl` and `User.avatarUrl` fields exist on the backend models but are not exposed in the UI. Implementing this requires file upload infrastructure (AWS S3 or Cloudflare R2). The data model is already in place — no migration needed.

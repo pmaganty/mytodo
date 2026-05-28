@@ -338,7 +338,7 @@ Currently project members have full edit access. A future improvement would add 
 `User.Name` is currently a single string. Splitting into `FirstName` and `LastName` would allow more flexible display options (e.g. showing just first names in task rows).
 
 ### Pagination
-Task and comment lists currently return all records. For projects with many tasks, cursor-based pagination would be needed. EF Core's `.Skip()` and `.Take()` make this straightforward to add.
+Task and comment lists currently return all records. For projects with many tasks, cursor-based pagination would be needed.
 
 ### FluentValidation
 Input validation is currently done with manual `if` checks in service methods. A library like FluentValidation would provide a cleaner, declarative way to define validation rules in a dedicated class per request type.
