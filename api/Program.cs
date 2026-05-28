@@ -12,8 +12,11 @@ using Api.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 // Use Railway's dynamic port in production
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+var port = Environment.GetEnvironmentVariable("PORT");
+if (port != null)
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
 
 // ── CORS ──────────────────────────────────────────────────────────────────────
 // Restricts which frontend origins can call the API.
