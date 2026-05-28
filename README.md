@@ -2,10 +2,7 @@
 
 A personal task management app designed for everyday people. Think of it as a better version of your notes app, with a clean UI, project organization, and the ability to collaborate with others.
 
-<video width="640" height="480" controls>
-  <source src="./client/public/todoapp.mov" type="video/mp4">
-  Your browser does not support the video tag.
-</video>
+![App demo](./client/public/todoapp.gif)
 
 ---
 
